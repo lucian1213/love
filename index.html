@@ -216,6 +216,15 @@ select:focus,.fg input:focus{outline:0;border-color:var(--mint)}
 #blackout.on{display:block}
 
 
+
+/* ── BGM 표시 ── */
+#bgmbox{position:fixed;left:24px;bottom:12px;z-index:8;display:flex;align-items:center;
+  gap:9px;font-size:11.5px;color:#7a5a52;letter-spacing:.06em;user-select:none}
+#bgmbox b{font-weight:400;color:#9a7a70}
+#bgmbox.off{color:#5a4038}
+#bgmdot{width:6px;height:6px;border-radius:50%;background:var(--gold);opacity:.75}
+#bgmbox.off #bgmdot{background:#5a4038}
+
 /* ── 좌우 여백 균등 · 글은 왼쪽 정렬 ── */
 .sheet{align-items:center;text-align:left}
 .sheet > *{width:100%;max-width:1180px}
@@ -263,6 +272,7 @@ select:focus,.fg input:focus{outline:0;border-color:var(--mint)}
 <main id="stage"></main>
 <div class="timer" id="timerBox" hidden><div class="clock" id="clock">00:00</div></div>
 <div class="pager"><span id="count"></span></div>
+<div id="bgmbox"><span id="bgmdot"></span><b id="bgmname">—</b></div>
 <div class="corner c1"></div><div class="corner c2"></div><div class="corner c3"></div><div class="corner c4"></div>
 <div id="blackout"></div>
 <datalist id="cast"></datalist>
@@ -930,6 +940,7 @@ function renderPlay(){
   h += `<div class="play"><h4>${substPlain(x.t, key)}</h4>${subst(x.h, key)}</div>`;
   setStage(h, playDir, false).scrollTop = 0;
   document.getElementById('count').textContent = `엔딩 ${qi + 1} / ${queue.length}`;
+  syncBgm();
   document.getElementById('bar').style.width = ((qi + 1) / queue.length * 100) + '%';
 }
 function movePlay(d){
@@ -939,6 +950,91 @@ function movePlay(d){
 }
 
 /* ── 슬라이드 ── */
+
+
+/* ── BGM ── */
+const BGM_DIR = 'bgm/', BGM_EXT = '.mp3', FADE = 1100;
+const TRACKS = {
+  wait:      ['대기',            'wait'],
+  prologue:  ['프롤로그',        'prologue'],
+  rule:      ['규칙 설명',       'rule'],
+  ho:        ['핸드아웃',        'ho'],
+  opening:   ['오프닝',          'opening'],
+  meeting:   ['회의',            'meeting'],
+  vote:      ['투표',            'vote'],
+  think:     ['사고 정리',       'think'],
+  tally:     ['집계',            'tally'],
+  end_al:    ['엔딩 A~L',        'ending1'],
+  end_mn:    ['엔딩 요괴 M·N',   'ending_yokai'],
+  end_or:    ['엔딩 후일담 O~R', 'ending_after'],
+  end_s:     ['엔딩 맺음말 S',   'ending_last'],
+};
+let bgmOn = true, bgmVol = .5, curTrack = null, layers = [], armed = false;
+
+function mkAudio(){ const a = new Audio(); a.loop = true; a.volume = 0; a.preload = 'auto'; return a; }
+layers = [mkAudio(), mkAudio()];
+let front = 0;
+
+function trackFor(){
+  const s = S[i];
+  if (s.kind === 'title') return 'wait';
+  if (s.kind === 'end')   return 'end_s';
+  if (s.kind === 'ending'){
+    if (mode === 'play'){
+      const sec = queue[qi] ? queue[qi].sec : 'A';
+      if ('MN'.includes(sec)) return 'end_mn';
+      if ('OPQR'.includes(sec)) return 'end_or';
+      if (sec === 'S') return 'end_s';
+      return 'end_al';
+    }
+    return 'tally';
+  }
+  const c = s.chapter, t = s.title || '';
+  if (c === '도입') return 'wait';
+  if (c === '프롤로그') return 'prologue';
+  if (c === '규칙') return 'rule';
+  if (t.startsWith('핸드아웃')) return 'ho';
+  if (c === '오프닝') return 'opening';
+  if (c === '전반' || c === '후반') return 'meeting';
+  if (t.indexOf('투표') >= 0) return 'vote';
+  if (c === '종반') return 'think';
+  return 'wait';
+}
+function fade(a, to, ms, done){
+  const from = a.volume, t0 = performance.now();
+  (function step(now){
+    const p = Math.min(1, ((now || performance.now()) - t0) / ms);
+    a.volume = Math.max(0, Math.min(1, from + (to - from) * p));
+    if (p < 1) requestAnimationFrame(step); else done && done();
+  })();
+}
+function syncBgm(){
+  const key = trackFor();
+  const box = document.getElementById('bgmbox');
+  const nm  = document.getElementById('bgmname');
+  if (box) box.classList.toggle('off', !bgmOn);
+  if (nm)  nm.textContent = TRACKS[key] ? TRACKS[key][0] : '—';
+  if (!armed || key === curTrack) return;
+  const old = layers[front], nw = layers[front = 1 - front];
+  nw.src = BGM_DIR + TRACKS[key][1] + BGM_EXT;
+  nw.volume = 0;
+  const play = nw.play();
+  if (play && play.catch) play.catch(() => {});
+  fade(nw, bgmOn ? bgmVol : 0, FADE);
+  if (old.src) fade(old, 0, FADE, () => { old.pause(); });
+  curTrack = key;
+}
+function armBgm(){ if (armed) return; armed = true; curTrack = null; syncBgm(); }
+function toggleBgm(){
+  bgmOn = !bgmOn;
+  fade(layers[front], bgmOn ? bgmVol : 0, 320);
+  const box = document.getElementById('bgmbox');
+  if (box) box.classList.toggle('off', !bgmOn);
+}
+function nudgeVol(d){
+  bgmVol = Math.max(0, Math.min(1, bgmVol + d));
+  if (bgmOn) layers[front].volume = bgmVol;
+}
 
 /* ── 종이 접힘 ── */
 const FOLD_MS = 1700, THETA = 45;
@@ -1036,6 +1132,7 @@ function go(n){
     if (mode === 'play') renderPlay();
     else if (mode === 'setup') renderSetup();
     else { mode = 'calc'; renderCalc(); }
+    syncBgm();
     return;
   }
   mode = 'slide';
@@ -1081,6 +1178,7 @@ function go(n){
   document.getElementById('rail').innerHTML =
     (s.kind === 'title' || s.kind === 'end') ? '' : `<span>${s.chapter || ''}</span>`;
   setT(s.timer || 0);
+  syncBgm();
 }
 
 /* ── 타이머 ── */
@@ -1097,6 +1195,10 @@ function startT(){ if (T.on) { stopT(); return; }
 function stopT(){ T.on = false; clearInterval(T.id); paint(); }
 
 addEventListener('keydown', e => {
+  armBgm();
+  if (e.key === 'm' || e.key === 'M'){ toggleBgm(); return; }
+  if (e.key === '+' || e.key === '='){ nudgeVol(.08); return; }
+  if (e.key === '-' || e.key === '_'){ nudgeVol(-.08); return; }
   if (turning && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) return;
   if (e.key === 'b' || e.key === 'B'){ document.getElementById('blackout').classList.toggle('on'); return; }
   if (mode === 'play'){
@@ -1115,6 +1217,7 @@ addEventListener('keydown', e => {
                                                       : document.documentElement.requestFullscreen(); }
 });
 addEventListener('click', e => {
+  armBgm();
   if (turning) return;
   if (mode === 'setup' || mode === 'calc') return;
   if (mode === 'play'){ movePlay(e.clientX > innerWidth / 2 ? 1 : -1); return; }
