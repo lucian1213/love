@@ -188,8 +188,6 @@ select:focus,.fg input:focus{outline:0;border-color:var(--mint)}
 .script{margin-top:2px;max-width:64em}
 .script .nar{font-family:var(--serif);font-size:21px;line-height:1.9;margin:0 0 16px;
   color:#c2ab9c}
-.script .say{display:grid;grid-template-columns:150px 1fr;gap:22px;margin:0 0 17px;
-  align-items:baseline}
 .script .say .who{font-family:var(--serif);font-size:20px;color:#b6b6b0;
   font-weight:600;text-align:right;border-right:1px solid #3a3a42;padding-right:18px}
 .script .say .txt{font-family:var(--serif);font-size:23px;line-height:1.8}
@@ -243,25 +241,18 @@ select:focus,.fg input:focus{outline:0;border-color:var(--mint)}
 .play .li{max-width:58em}
 
 
-/* ── 대본 초상화 ── */
-.script .say{display:grid;grid-template-columns:104px 132px 1fr;gap:0 20px;
-  margin:0 0 20px;align-items:center}
-.script .say .por{width:104px;height:auto;display:block;
-  filter:drop-shadow(0 3px 10px rgba(0,0,0,.55))}
-.script .say .por.none{height:0}
-.script .say .who{display:block;font-family:var(--serif);font-size:20px;
-  color:var(--gold2);font-weight:600;text-align:right;
-  border-right:1px solid var(--golddim);padding-right:18px}
-.script .say .txt{text-align:left}
-.script .nar{padding-left:124px}
 
-/* 대본 — 이름을 왼쪽 열에 되돌린다 */
-.script .say{display:grid;grid-template-columns:150px 1fr;gap:22px;margin:0 0 17px;
-  align-items:baseline}
+/* 대본 — 초상화 · 이름 · 대사 3열 */
+.script .say{display:grid;grid-template-columns:112px 128px 1fr;gap:0 22px;
+  margin:0 0 22px;align-items:center}
+.script .say .por{width:112px;height:auto;display:block;
+  filter:drop-shadow(0 4px 12px rgba(0,0,0,.6))}
+.script .say .por.none{width:112px;height:1px}
 .script .say .who{display:block;font-family:var(--serif);font-size:20px;color:var(--gold2);
   font-weight:600;text-align:right;border-right:1px solid var(--golddim);border-bottom:0;
-  padding:0 18px 0 0;margin:0;letter-spacing:normal}
+  padding:0 18px 0 0;margin:0;letter-spacing:normal;align-self:center}
 .script .say .txt{text-align:left}
+.script .nar{padding-left:134px}
 
 /* 엔딩 대사 — 세로선 복귀 */
 .play .li{border-left:2px solid var(--gold);text-align:left;padding:15px 24px;
