@@ -442,9 +442,13 @@ select:focus,.fg input:focus{outline:0;border-color:var(--mint)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
 /* ══════ 모바일 · 가로 기준 ══════ */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+
 @media (max-width: 1100px){
-  body{background-image:var(--bgfallback);background-size:auto}
-  main{padding:32px 26px 54px 40px}
+  body{background-image:var(--bgfallback);background-size:auto;overflow-x:hidden}
+  main{padding:0}
+  .sheet{padding:30px 92px 48px 38px}          /* 오른쪽은 조작 막대 자리 */
+  .fpart .sheet{padding:30px 92px 48px 38px}
   .rail{left:7px;width:20px}
   .rail span{font-size:11px;letter-spacing:.26em}
   .bar{height:3px}
@@ -535,6 +539,36 @@ select:focus,.fg input:focus{outline:0;border-color:var(--mint)}
   #bgmbox{left:12px;bottom:8px;font-size:10.5px}
   .pager{font-size:11px}
   .full img{object-fit:contain}
+}
+
+/* 좁은 가로 화면 */
+@media (max-width: 820px){
+  .sheet{padding:24px 84px 42px 30px}
+  h2{font-size:23px}
+  .big{font-size:19.5px}
+  .lead p{font-size:15px}
+  .rules h3{font-size:16.5px}
+  .rules p{font-size:13.5px}
+  .script .say{grid-template-columns:62px 88px 1fr;column-gap:12px}
+  .script .say .por{width:62px;height:62px}
+  .script .say .por.none{width:62px}
+  .script .say .who{font-size:14.5px;padding-right:10px}
+  .script .say .txt{font-size:15px}
+  .script .nar{padding-left:74px;font-size:14.5px}
+  .grp figure{width:52px}
+  .grp figure img{width:52px;height:52px}
+  .grp figcaption{font-size:10.5px}
+  .clock{font-size:58px}
+  .timer{bottom:32px;right:18px}
+  .setup{grid-template-columns:212px 1fr}
+  .calc{grid-template-columns:1fr 190px}
+  .tally{grid-template-columns:1fr 176px}
+  .tally .row{grid-template-columns:74px 1fr}
+  .tally select{min-width:100px}
+  .play h4{font-size:19px}
+  .play .nar,.play .li{font-size:15px}
+  .chars{grid-template-columns:repeat(2,1fr)}
+  #touch button{width:46px;height:46px;font-size:17px}
 }
 
 /* 세로로 들면 가로로 돌리라고 안내 */
